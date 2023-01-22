@@ -1,13 +1,15 @@
 import propTypes from 'prop-types';
 import css from './ContactList.module.css';
 
-export const ContactList = ({ contacts, handleDelete }) => {
+export const ContactList = ({ phonebookContacts, handleDelete }) => {
   return (
     <div className={css.wraperContactList}>
-      <ul className={css.contactList}>
-        {contacts.map(contact => (
+      <ul className={css.ContactList}>
+        {phonebookContacts.map(contact => (
           <li key={contact.id} className={css.contactListItem}>
-            {contact.name}: {contact.number}
+            <img src={contact.avatar} alt={contact.name} />
+            <p className={css.contactText}>{contact.name}:</p>
+            <p className={css.contactText}>{contact.phone}</p>
             <button
               type="button"
               className={css.contactListItemBtn}
@@ -25,7 +27,7 @@ export const ContactList = ({ contacts, handleDelete }) => {
 ContactList.propTypes = {
   contacts: propTypes.arrayOf(
     propTypes.exact({
-      id: propTypes.string.isRequired,
+      id: propTypes.number.isRequired,
       name: propTypes.string.isRequired,
       number: propTypes.string.isRequired,
     })

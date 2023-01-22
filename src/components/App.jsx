@@ -1,36 +1,38 @@
-// import { useState } from 'react';
-import { nanoid } from 'nanoid';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { filterContact } from 'redux/phonebookSlice';
+import {
+  selectorContacts,
+  selectorFilter,
+  selectorContactsIsloading,
+} from 'redux/selector';
+import {
+  fetchContacts,
+  fetchContactsDelete,
+  fetchContactsAdd,
+} from 'redux/contacts.thunk';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactList/ContactList';
 import css from '../components/App.module.css';
-// import { useLocalStorage } from '../components/hooks/useLocalStorege';
-import { useDispatch, useSelector } from 'react-redux';
-import { filterContact, addContact, removeContact } from 'redux/phonebookSlice';
-import { selectorContacts, selectorFilter } from 'redux/selector';
 
 export const App = () => {
-  // const [contacts, setContacts] = useLocalStorage('contacts', []);
-  // const [filter, setFilter] = useState('');
   const filter = useSelector(selectorFilter);
   const contacts = useSelector(selectorContacts);
+  const isLoading = useSelector(selectorContactsIsloading);
+
   const dispatch = useDispatch();
 
-  const handleSubmit = data => {
-    const id = nanoid();
-    // const contactsLists = [...contacts];
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
-    // if (contactsLists.findIndex(contact => name === contact.name) !== -1) {
-    //   alert(`${name} is already in contacts.`);
-    // } else {
-    //   contactsLists.push({ name, id, number });
-    // }
+  const handleAddContacts = data => {
     if (contacts.findIndex(contact => data.name === contact.name) !== -1) {
       alert(`${data.name} is already in contacts.`);
       return;
     }
-    // setContacts(contactsLists);
-    dispatch(addContact({ ...data, id }));
+    dispatch(fetchContactsAdd(data));
   };
 
   const getFilteredContacts = () => {
@@ -42,27 +44,23 @@ export const App = () => {
   };
 
   const handleChange = e => {
-    // const filter = e.target.value;
-    // setFilter(filter);
     dispatch(filterContact(e.target.value));
   };
 
-  const handleDelete = elementDeleteId => {
-    // setContacts(prevState =>
-    //   prevState.filter(contact => contact.id !== elementDeleteId)
-    // );
-    dispatch(removeContact(elementDeleteId));
+  const handleDeleteContacts = contactsId => {
+    dispatch(fetchContactsDelete(contactsId));
   };
 
   return (
     <div className={css.app_style}>
       <h1>Phonebook</h1>
-      <ContactForm handleSubmit={handleSubmit} />
+      {isLoading && <p>Please wait...</p>}
+      <ContactForm handleSubmit={handleAddContacts} />
       <h2>Contacts</h2>
       <Filter filter={filter} handleChange={handleChange} />
       <ContactList
-        contacts={getFilteredContacts()}
-        handleDelete={handleDelete}
+        phonebookContacts={getFilteredContacts()}
+        handleDelete={handleDeleteContacts}
       />
     </div>
   );
